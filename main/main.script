@@ -1,0 +1,17 @@
+local messages = require "main.messages"
+
+function init(self)
+	msg.post("@render:", "use_fixed_fit_projection", { near = -1, far = 1 })
+	msg.post("/loader#collectionproxy", "load")
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash(messages.game_start) then
+		msg.post("/loader#collectionproxy", "load")
+	end
+	if message_id == hash("proxy_loaded") then
+		-- New world is loaded. Init and enable it.
+		msg.post(sender, "init")
+		msg.post(sender, "enable")
+	end
+end

@@ -1,0 +1,72 @@
+local messages = require "main.messages"
+local gravity = 3000
+local jump_velocity = 800
+
+function init(self)
+	-- Add initialization code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+	self.jumping = false
+	self.vertical_velocity = 0
+	msg.post(".", "acquire_input_focus")
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	-- Add update code here
+	-- Learn more: https://defold.com/manuals/script/
+	-- Remove this function if not needed
+	local current_position = go.get_position()
+	if current_position.y <= 0 and self.vertical_velocity < 0 then
+		self.vertical_velocity = 0
+		go.set_position(vmath.vector3(0, 0, 0))
+		return
+	end
+
+	if self.vertical_velocity ~= 0 then
+		local new_y_position = current_position.y + self.vertical_velocity * dt + self.vertical_velocity  * dt * dt / 2
+		current_position.y = new_y_position
+		go.set_position(current_position)
+		
+		local new_velocity = self.vertical_velocity - gravity * dt
+		self.vertical_velocity = new_velocity
+	end	
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	-- Learn more: https://defold.com/manuals/message-passing/
+	-- Remove this function if not needed
+	if hash("collision_response") == message_id then
+		msg.post("main:/loader#loader", messages.player_collision)
+	end
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here. The game object this script is attached to
+	-- must have acquired input focus:
+	--
+	--    msg.post(".", "acquire_input_focus")
+	--
+	-- All mapped input bindings will be received. Mouse and touch input will
+	-- be received regardless of where on the screen it happened.
+	-- Learn more: https://defold.com/manuals/input/
+	-- Remove this function if not needed
+	local position = go.get_position()
+	print(position)
+	if hash("jump") == action_id and action.pressed and position.y <= 0 then
+		print("jump!")
+		self.vertical_velocity = jump_velocity
+	end
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Learn more: https://defold.com/manuals/hot-reload/
+	-- Remove this function if not needed
+end
